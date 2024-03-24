@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 """"New sqlalchemy class."""
 from sqlalchemy.orm import sessionmaker, scoped_session
-from sqlalchemy import create_engine
+from sqlalchemy import (create_engine)
 from sqlalchemy.ext.declarative import declarative_base
 from models.base_model import Base
 from models.user import User
@@ -36,19 +36,19 @@ class DBStorage:
         """Returns a dictionary of models currently in storage"""
         dicn = {}
         if cls:
-            if isinstance(cls, str):
+            if type(cls) is str:
                 cls = eval(cls)
             query = self.__session.query(cls)
-            for obj in query:
-                key = "{}.{}".format(obj.__class__.__name__, obj.id)
-                dicn[key] = obj
+            for ele in query:
+                key = "{}.{}".format(type(ele).__name__, ele.id)
+                dicn[key] = ele
         else:
             listc = [State, City, User, Place, Review, Amenity]
             for clss in listc:
                 query = self.__session.query(clss)
-                for obj in query:
-                    key = "{}.{}".format(obj.__class__.__name__, obj.id)
-                    dicn[key] = obj
+                for ele in query:
+                    key = "{}.{}".format(type(ele).__name__, ele.id)
+                    dicn[key] = ele
         return (dicn)
 
     def new(self, obj):
@@ -67,9 +67,10 @@ class DBStorage:
 
     def reload(self):
         """Loads storage dictionary from file"""
-        Base.metadata.drop_all(self.__engine)
+        Base.metadata.create_all(self.__engine)
         sess = sessionmaker(bind=self.__engine, expire_on_commit=False)
-        self.__session = scoped_session(sess)
+        Session = scoped_session(sess)
+        self.__session = Session()
 
     def close(self):
         """ calls reload()

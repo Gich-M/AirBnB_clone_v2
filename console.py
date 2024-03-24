@@ -36,55 +36,55 @@ class HBNBCommand(cmd.Cmd):
             print('(hbnb)')
 
     def precmd(self, line):
-        """Reformat command line for advanced command syntax.
+            """Reformat command line for advanced command syntax.
 
-        Usage: <class name>.<command>([<id> [<*args> or <**kwargs>]])
-        (Brackets denote optional fields in usage example.)
-        """
-        _cmd = _cls = _id = _args = ''  # initialize line elements
+            Usage: <class name>.<command>([<id> [<*args> or <**kwargs>]])
+            (Brackets denote optional fields in usage example.)
+            """
+            _cmd = _cls = _id = _args = ''  # initialize line elements
 
-        # scan for general formating - i.e '.', '(', ')'
-        if not ('.' in line and '(' in line and ')' in line):
-            return line
+            # scan for general formating - i.e '.', '(', ')'
+            if not ('.' in line and '(' in line and ')' in line):
+                return line
 
-        try:  # parse line left to right
-            pline = line[:]  # parsed line
+            try:  # parse line left to right
+                pline = line[:]  # parsed line
 
-            # isolate <class name>
-            _cls = pline[:pline.find('.')]
+                # isolate <class name>
+                _cls = pline[:pline.find('.')]
 
-            # isolate and validate <command>
-            _cmd = pline[pline.find('.') + 1:pline.find('(')]
-            if _cmd not in HBNBCommand.dot_cmds:
-                raise Exception
+                # isolate and validate <command>
+                _cmd = pline[pline.find('.') + 1:pline.find('(')]
+                if _cmd not in HBNBCommand.dot_cmds:
+                    raise Exception
 
-            # if parantheses contain arguments, parse them
-            pline = pline[pline.find('(') + 1:pline.find(')')]
-            if pline:
-                # partition args: (<id>, [<delim>], [<*args>])
-                pline = pline.partition(', ')  # pline convert to tuple
-
-                # isolate _id, stripping quotes
-                _id = pline[0].replace('\"', '')
-                # possible bug here:
-                # empty quotes register as empty _id when replaced
-
-                # if arguments exist beyond _id
-                pline = pline[2].strip()  # pline is now str
+                # if parantheses contain arguments, parse them
+                pline = pline[pline.find('(') + 1:pline.find(')')]
                 if pline:
-                    # check for *args or **kwargs
-                    if pline[0] == '{' and pline[-1] == '}'\
-                            and type(eval(pline)) is dict:
-                        _args = pline
-                    else:
-                        _args = pline.replace(',', '')
-                        # _args = _args.replace('\"', '')
-            line = ' '.join([_cmd, _cls, _id, _args])
+                    # partition args: (<id>, [<delim>], [<*args>])
+                    pline = pline.partition(', ')  # pline convert to tuple
 
-        except Exception as mess:
-            pass
-        finally:
-            return line
+                    # isolate _id, stripping quotes
+                    _id = pline[0].replace('\"', '')
+                    # possible bug here:
+                    # empty quotes register as empty _id when replaced
+
+                    # if arguments exist beyond _id
+                    pline = pline[2].strip()  # pline is now str
+                    if pline:
+                        # check for *args or **kwargs
+                        if pline[0] == '{' and pline[-1] == '}'\
+                                and type(eval(pline)) is dict:
+                            _args = pline
+                        else:
+                            _args = pline.replace(',', '')
+                            # _args = _args.replace('\"', '')
+                line = ' '.join([_cmd, _cls, _id, _args])
+
+            except Exception as mess:
+                pass
+            finally:
+                return line
 
     def postcmd(self, stop, line):
         """Prints if isatty is false"""
@@ -123,48 +123,24 @@ class HBNBCommand(cmd.Cmd):
             Float: <unit>.<decimal>
             Integer: <number>
         """
-        args_list = args.split()
-        if not args_list:
+        try:
+            if not args:
+                raise SyntaxError()
+            argl = args.split(" ")
+            kw = {}
+            for arg in argl[1:]:
+                argsplit = arg.split("=")
+                argsplit[1] = eval(argsplit[1])
+                if type(argsplit[1]) is str:
+                    argsplit[1] = argsplit[1].replace("_", " ").replace('"', '\\"')
+                kw[argsplit[0]] = argsplit[1]
+        except SyntaxError:
             print("** class name missing **")
-            return
-        class_name = args_list[0]
-        if class_name not in HBNBCommand.classes:
+        except NameError:
             print("** class doesn't exist **")
-            return
-
-        kwargs = {}
-        for arg in args_list[1:]:
-            key_value = arg.split('=', 1)
-            if len(key_value) < 2:
-                continue
-            key, value = key_value
-            if value.startswith('"'):
-                if value.endswith('"'):
-                    value = value[1:-1]
-                    value = value.replace('\\"', '"')
-                else:
-                    print("** Value is missing double quote **")
-                    continue
-            elif '.' in value:
-                try:
-                    value = float(value)
-                except ValueError:
-                    print("** Value is not a float **")
-                    continue
-            else:
-                try:
-                    value = int(value)
-                except ValueError:
-                    print("** Value is not an integer **")
-                    continue
-            kwargs[key.replace('_', ' ')] = value
-
-        new_instance = HBNBCommand.classes[class_name]()
-        for key, value in kwargs.items():
-            setattr(new_instance, key, value)
-        storage.save()
+        new_instance = HBNBCommand.classes[argl[0]](**kw)
+        new_instance.save()
         print(new_instance.id)
-        storage.save()
 
     def help_create(self):
         """ Help information for the create method """
@@ -177,7 +153,6 @@ class HBNBCommand(cmd.Cmd):
         c_name = new[0]
         c_id = new[2]
 
-        # guard against trailing args
         if c_id and ' ' in c_id:
             c_id = c_id.partition(' ')[0]
 

@@ -26,7 +26,7 @@ class State(BaseModel, Base):
             city = shlex.split(city)
             if (city[0] == 'City'):
                 listc.append(var[key])
-        for elem in listc:
-            if (elem.state_id == self.id):
-                result.append(elem)
+        for ele in listc:
+            if (ele.state_id == self.id):
+                result.append(ele)
         return result

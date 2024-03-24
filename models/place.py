@@ -68,9 +68,9 @@ class Place(BaseModel, Base):
                 review = shlex.split(review)
                 if (review[0] == 'Review'):
                     listc.append(var[key])
-            for elem in listc:
-                if (elem.place_id == self.id):
-                    result.append(elem)
+            for ele in listc:
+                if (ele.place_id == self.id):
+                    result.append(ele)
             return (result)
 
         @property
