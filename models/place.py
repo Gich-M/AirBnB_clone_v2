@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 """This is the place class"""
 from models.base_model import BaseModel, Base
-from models.amenity import Amenity
 from os import getenv
 import models
 import shlex
