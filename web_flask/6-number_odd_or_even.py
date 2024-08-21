@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 """Starts a flask web application."""
 
-from flask import Flask, render_template, abort
+from flask import Flask, render_template
 app = Flask(__name__)
 app.url_map.strict_slashes = False
 
@@ -40,11 +40,7 @@ def is_number(n):
 
 @app.route('/number_template/<n>')
 def number_template(n):
-    try:
-        num = int(n)
-        return render_template('5-number.html', n=num)
-    except ValueError:
-        abort(404)
+    return render_template('5-number.html', n=n)
 
 
 @app.route('/number_odd_or_even/<int:n>')

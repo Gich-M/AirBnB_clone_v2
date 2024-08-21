@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 """Starts a flask web application."""
 
-from flask import Flask, abort
+from flask import Flask
 app = Flask(__name__)
 app.url_map.strict_slashes = False
 
@@ -29,13 +29,9 @@ def py_text(text):
     return "Python {}".format(f_text)
 
 
-@app.route('/number/<n>')
+@app.route('/number/<int:n>')
 def is_number(n):
-    try:
-        num = int(n)
-        return "{} is a number".format(num)
-    except ValueError:
-        abort(404)
+    return "{} is a number".format(n)
 
 
 if __name__ == '__main__':
