@@ -30,7 +30,7 @@ def py_text(text):
 
 
 @app.route('/number/<n>')
-def number(n):
+def is_number(n):
     try:
         num = int(n)
         return "{} is a number".format(num)
